@@ -9,9 +9,36 @@ const Sidebar = () => {
     const { currentUser, users, setCurrentUser } = useAppContext();
     const [showImport, setShowImport] = useState(false);
 
+    const PASSWORD_MAP: Record<string, string> = {
+        "Simone": "simodtc!!",
+        "Matteo": "Mattepeda",
+        "Samuela": "Samusamu123",
+        "Thomas": "thommm11",
+        "Responsabile rinnovi": "Luccc901",
+        "Supportochat": "Poilkj"
+    };
+
     const handleUserSwitch = (userId: string) => {
         const user = users.find(u => u.id === userId);
-        if (user) setCurrentUser(user);
+        if (user) {
+            // If switching to a different user, require password
+            if (currentUser && currentUser.id !== user.id) {
+                const password = window.prompt(`Inserisci la password per accedere come ${user.name}:`);
+
+                // Check against hardcoded map first, then user.password, then default
+                // We trim the name to ensure clean matching
+                const correctPassword = PASSWORD_MAP[user.name] || user.password || '1234';
+
+                if (password === correctPassword) {
+                    setCurrentUser(user);
+                } else {
+                    alert("Password errata!");
+                }
+            } else {
+                // Same user or initial load
+                setCurrentUser(user);
+            }
+        }
     };
 
     const linkClass = ({ isActive }: { isActive: boolean }) =>

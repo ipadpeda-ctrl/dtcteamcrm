@@ -21,8 +21,8 @@ export interface CoachStats {
 }
 
 export const calculateCoachStats = (students: Student[], users: User[]): CoachStats[] => {
-    // Filter only coaches
-    const coaches = users.filter(u => u.role === 'COACH' || u.role === 'OWNER');
+    // Filter only coaches (exclude OWNER)
+    const coaches = users.filter(u => u.role === 'COACH');
 
     return coaches.map(coach => {
         const coachStudents = students.filter(s => s.coachId === coach.id);
