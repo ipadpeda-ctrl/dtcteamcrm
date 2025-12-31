@@ -31,8 +31,10 @@ const StudentsPage = () => {
             endDate: '', // Will be calculated by context
             coachId: formData.coachId,
             lessonsDone: 0,
+            totalLessons: 10, // Default value, will be recalculated by backend/context if needed
             lastContactDate: new Date().toISOString(),
             status: 'ACTIVE',
+            difficultyTags: [],
             notes: ''
         };
 

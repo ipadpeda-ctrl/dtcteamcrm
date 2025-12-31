@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { X, Calendar, Phone, CheckCircle, AlertCircle, Save, Tag } from 'lucide-react';
+import { X, Phone, CheckCircle, Save } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAppContext } from '../context/AppContext';
-import { DIFFICULTY_TAGS, getTagColor } from '../utils/tagUtils';
+import { DIFFICULTY_TAGS } from '../utils/tagUtils';
 import type { Student } from '../types';
 import clsx from 'clsx';
 

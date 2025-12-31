@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, X, Download, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
+import { Upload, X, Download, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import type { PackageType, Student } from '../types';
 

@@ -1,7 +1,7 @@
 import { useAppContext } from '../context/AppContext';
 import StudentTable from './StudentTable';
 import TeamPerformance from './TeamPerformance';
-import { Users, AlertTriangle, MessageCircle, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { Users, AlertTriangle, MessageCircle, TrendingUp, AlertCircle } from 'lucide-react';
 import React from 'react';
 import StudentDetailModal from './StudentDetailModal';
 import { isContactUrgent } from '../utils/businessLogic';
