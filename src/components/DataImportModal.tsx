@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Upload, X, Download, CheckCircle, ArrowRight } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import type { PackageType, Student } from '../types';
-import { parseDateSafe } from '../utils/businessLogic';
+import { parseDateSafe, calculateTotalLessons } from '../utils/businessLogic';
 
 interface DataImportModalProps {
     onClose: () => void;
@@ -115,7 +115,7 @@ const DataImportModal = ({ onClose }: DataImportModalProps) => {
                 const startDate = rawStartDate ? parseDateSafe(rawStartDate).split('T')[0] : new Date().toISOString().split('T')[0];
                 const coachName = getValue('coach');
                 const lessonsDone = parseInt(getValue('lessonsDone')) || 0;
-                const totalLessons = parseInt(getValue('totalLessons')) || 10;
+                const totalLessons = parseInt(getValue('totalLessons')) || calculateTotalLessons(pkg);
 
                 // Find coach ID
                 const potentialCoach = users.find(u => u.name.toLowerCase().includes(coachName.toLowerCase())) || users.find(u => u.role === 'COACH');

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import { Search, CheckCircle, Clock, Edit2, X, Trash2 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
-import { isContactUrgent } from '../utils/businessLogic';
+import { isContactUrgent, calculateTotalLessons } from '../utils/businessLogic';
 import { getTagColor } from '../utils/tagUtils';
 import StudentDetailModal from './StudentDetailModal';
 import clsx from 'clsx';
@@ -41,7 +41,7 @@ const StudentTable = () => {
         setEditingStudent(student);
         setEditForm({
             lessonsDone: student.lessonsDone,
-            totalLessons: student.totalLessons || 0,
+            totalLessons: student.totalLessons || calculateTotalLessons(student.package),
             coachId: student.coachId
         });
     };
@@ -160,10 +160,10 @@ const StudentTable = () => {
                                             <div className="w-24 bg-gray-800 rounded-full h-2 overflow-hidden">
                                                 <div
                                                     className="bg-blue-500 h-full rounded-full"
-                                                    style={{ width: `${Math.min((student.lessonsDone / (student.totalLessons || 20)) * 100, 100)}%` }}
+                                                    style={{ width: `${Math.min((student.lessonsDone / (student.totalLessons || calculateTotalLessons(student.package))) * 100, 100)}%` }}
                                                 ></div>
                                             </div>
-                                            <span className="text-xs font-medium text-gray-300">{student.lessonsDone}/{student.totalLessons || '?'}</span>
+                                            <span className="text-xs font-medium text-gray-300">{student.lessonsDone}/{student.totalLessons || calculateTotalLessons(student.package)}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-center">

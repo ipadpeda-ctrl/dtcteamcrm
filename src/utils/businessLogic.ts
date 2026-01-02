@@ -66,12 +66,16 @@ export const calculateEndDate = (startDate: string, packageType: PackageType): s
     return end.toISOString();
 };
 
+export const PACKAGE_LESSONS: Record<PackageType, number> = {
+    Silver: 8,
+    Gold: 16,
+    Platinum: 24,
+    Elite: 48,
+    Grandmaster: 56,
+};
+
 export const calculateTotalLessons = (packageType: PackageType): number => {
-    // Logic: 2 lessons per week
-    // Duration in days / 7 * 2
-    const durationDays = PACKAGE_DURATIONS[packageType];
-    const weeks = durationDays / 7;
-    return Math.round(weeks * 2);
+    return PACKAGE_LESSONS[packageType] || 20; // Default fallback
 };
 
 export const isContactUrgent = (student: Student): boolean => {
