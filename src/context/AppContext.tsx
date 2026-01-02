@@ -110,7 +110,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // Sanitize IDs
         const isValidId = (id: string | undefined): id is string => typeof id === 'string' && id.length > 20;
 
-        const finalCoachId = isValidId(studentData.coachId) ? studentData.coachId : isValidId(currentUser?.id) ? currentUser?.id : null;
+        // Fetch real authenticated user ID as ultimate fallback
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        const realAuthUserId = authUser?.id;
+
+        // Logic: 
+        // 1. Try studentData.coachId (if valid)
+        // 2. Try currentUser.id (if valid)
+        // 3. FORCE fallback to realAuthUserId (must be valid if logged in)
+        // 4. Last resort: null (which might fail FK if not nullable, but better than invalid ID)
+
+        let finalCoachId = isValidId(studentData.coachId) ? studentData.coachId :
+            (isValidId(currentUser?.id) ? currentUser?.id : realAuthUserId);
+
+        // Final safety net: if even realAuthUserId is somehow missing/invalid, send undefined
+        if (!isValidId(finalCoachId)) {
+            finalCoachId = undefined;
+        }
 
         // If we still don't have a valid coach ID, we can't insert (or should insert with null if allowed, but schema has foreign key)
         // Ideally we should have a fallback. If foreign key allows null, we send null.
