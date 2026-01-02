@@ -126,6 +126,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // Final safety net: if even realAuthUserId is somehow missing/invalid, send undefined
         if (!isValidId(finalCoachId)) {
             finalCoachId = undefined;
+        } else {
+            // CRITICAL: Ensure the ID actually exists in the REFERENCED table (public.users)
+            // The error 'Key is not present in table "users"' means FK violation.
+            // We have the list of public users in 'users' state.
+            const userExistsInPublicTable = users.some(u => u.id === finalCoachId);
+
+            if (!userExistsInPublicTable) {
+                console.warn(`Coach ID ${finalCoachId} not found in public.users table. Removing to avoid FK violation.`);
+                finalCoachId = undefined;
+            }
         }
 
         // If we still don't have a valid coach ID, we can't insert (or should insert with null if allowed, but schema has foreign key)
