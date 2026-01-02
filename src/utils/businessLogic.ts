@@ -1,4 +1,4 @@
-import { addDays, addMonths, differenceInHours, differenceInDays, parseISO } from 'date-fns';
+import { addDays, addMonths, differenceInHours, differenceInDays, parseISO, parse, isValid } from 'date-fns';
 import type { PackageType, Student, User } from '../types';
 
 export const PACKAGE_DURATIONS: Record<PackageType, number> = {
@@ -85,4 +85,29 @@ export const isContactUrgent = (student: Student): boolean => {
         // Terminated/Not Renewed: Urgent if > 10 days
         return differenceInDays(now, lastContact) >= 10;
     }
+};
+export const parseDateSafe = (dateStr: string): string => {
+    if (!dateStr) return new Date().toISOString();
+
+    // Try standard ISO
+    let date = parseISO(dateStr);
+    if (isValid(date)) return date.toISOString();
+
+    // Try Common Italian formats
+    const formats = [
+        'dd/MM/yyyy',
+        'dd-MM-yyyy',
+        'd/M/yyyy',
+        'd-M-yyyy',
+        'yyyy/MM/dd',
+        'yyyy-MM-dd'
+    ];
+
+    for (const fmt of formats) {
+        date = parse(dateStr, fmt, new Date());
+        if (isValid(date)) return date.toISOString();
+    }
+
+    console.warn(`Could not parse date: ${dateStr}, defaulting to now`);
+    return new Date().toISOString();
 };
