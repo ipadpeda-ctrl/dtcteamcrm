@@ -118,7 +118,16 @@ const DataImportModal = ({ onClose }: DataImportModalProps) => {
                 const totalLessons = parseInt(getValue('totalLessons')) || 10;
 
                 // Find coach ID
-                const coach = users.find(u => u.name.toLowerCase().includes(coachName.toLowerCase())) || users.find(u => u.role === 'COACH');
+                const potentialCoach = users.find(u => u.name.toLowerCase().includes(coachName.toLowerCase())) || users.find(u => u.role === 'COACH');
+
+                // Validate ID (must be UUID-like, not '2' or '1')
+                const isValidId = (id: string | undefined) => id && id.length > 20;
+
+                const validCoachId = isValidId(potentialCoach?.id) ? potentialCoach?.id : undefined;
+                const validCurrentUserId = isValidId(currentUser?.id) ? currentUser?.id : undefined;
+                const validFirstUserId = isValidId(users[0]?.id) ? users[0]?.id : undefined;
+
+                const finalCoachId = validCoachId || validCurrentUserId || validFirstUserId;
 
                 const newStudent = {
                     name,
@@ -127,7 +136,7 @@ const DataImportModal = ({ onClose }: DataImportModalProps) => {
                     startDate,
                     lessonsDone,
                     totalLessons,
-                    coachId: coach?.id || currentUser?.id || users[0]?.id, // Default to current user or first admin
+                    coachId: finalCoachId!, // We assume at least one valid user exists (the logged in one)
                     status: 'ACTIVE' as const
                 };
 
