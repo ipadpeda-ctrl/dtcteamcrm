@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { calculateTotalLessons } from '../utils/businessLogic';
-import { RefreshCw, Check, AlertTriangle } from 'lucide-react';
-import { supabase } from '../lib/supabase'; // Direct DB access for bulk efficiency or rely on context? Context is safer for state sync.
+import { RefreshCw, Check } from 'lucide-react';
 
 export const BulkUpdateScript = () => {
     const { students, updateStudent, currentUser } = useAppContext();
