@@ -107,7 +107,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const pkg = studentData.package!;
         const startDate = studentData.startDate!;
 
-        // Prepare DB object (snake_case)
+        // Sanitize IDs
+        const isValidId = (id: string | undefined): id is string => typeof id === 'string' && id.length > 20;
+
+        const finalCoachId = isValidId(studentData.coachId) ? studentData.coachId : isValidId(currentUser?.id) ? currentUser?.id : null;
+
+        // If we still don't have a valid coach ID, we can't insert (or should insert with null if allowed, but schema has foreign key)
+        // Ideally we should have a fallback. If foreign key allows null, we send null.
+        // If foreign key is NOT NULL, we have a problem if we can't find a user.
+        // Assuming we have a logged in user, currentUser.id is our best bet.
+
         const dbStudent = {
             name: studentData.name,
             email: studentData.email,
@@ -116,8 +125,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             end_date: studentData.endDate || calculateEndDate(startDate, pkg),
             total_lessons: studentData.totalLessons || calculateTotalLessons(pkg),
             lessons_done: studentData.lessonsDone || 0,
-            coach_id: studentData.coachId || studentData.originalCoachId || currentUser?.id,
-            original_coach_id: studentData.originalCoachId || studentData.coachId || currentUser?.id,
+            coach_id: finalCoachId,
+            original_coach_id: finalCoachId, // Keep aligned with coach_id for new students
             status: 'ACTIVE',
             last_contact_date: new Date().toISOString(),
             difficulty_tags: [],
