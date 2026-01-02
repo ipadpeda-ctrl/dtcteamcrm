@@ -108,7 +108,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const startDate = studentData.startDate!;
 
         // Sanitize IDs
-        const isValidId = (id: string | undefined): id is string => typeof id === 'string' && id.length > 20;
+        const isValidId = (id: string | null | undefined): id is string => typeof id === 'string' && id.length > 20;
 
         // Fetch real authenticated user ID as ultimate fallback
         const { data: { user: authUser } } = await supabase.auth.getUser();
@@ -120,12 +120,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // 3. FORCE fallback to realAuthUserId (must be valid if logged in)
         // 4. Last resort: null (which might fail FK if not nullable, but better than invalid ID)
 
-        let finalCoachId = isValidId(studentData.coachId) ? studentData.coachId :
-            (isValidId(currentUser?.id) ? currentUser?.id : realAuthUserId);
+        // Explicitly type simple variable
+        let finalCoachId: string | null = isValidId(studentData.coachId) ? studentData.coachId :
+            (isValidId(currentUser?.id) ? currentUser?.id : (realAuthUserId || null));
 
-        // Final safety net: if even realAuthUserId is somehow missing/invalid, send undefined
+        // Final safety net: if even realAuthUserId is somehow missing/invalid, send null
+        // Force NULL (not undefined) to override any potential bad DB default values
         if (!isValidId(finalCoachId)) {
-            finalCoachId = undefined;
+            finalCoachId = null;
         } else {
             // CRITICAL: Ensure the ID actually exists in the REFERENCED table (public.users)
             // The error 'Key is not present in table "users"' means FK violation.
@@ -134,7 +136,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
             if (!userExistsInPublicTable) {
                 console.warn(`Coach ID ${finalCoachId} not found in public.users table. Removing to avoid FK violation.`);
-                finalCoachId = undefined;
+                finalCoachId = null;
             }
         }
 

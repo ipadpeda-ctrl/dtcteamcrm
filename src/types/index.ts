@@ -53,5 +53,5 @@ export interface DBStudent {
     is_renewed?: boolean;
     renewal_date?: string;
     call_booked?: boolean;
-    original_coach_id?: string;
+    original_coach_id?: string | null;
 }
