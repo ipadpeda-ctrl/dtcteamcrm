@@ -6,40 +6,8 @@ import clsx from 'clsx';
 import DataImportModal from './DataImportModal';
 
 const Sidebar = () => {
-    const { currentUser, users, setCurrentUser } = useAppContext();
+    const { currentUser, logout } = useAppContext();
     const [showImport, setShowImport] = useState(false);
-
-    const PASSWORD_MAP: Record<string, string> = {
-        "Simone": "simodtc!!",
-        "Matteo": "Mattepeda",
-        "Samuela": "Samusamu123",
-        "Thomas": "thommm11",
-        "Responsabile rinnovi": "Luccc901",
-        "Supportochat": "Poilkj"
-    };
-
-    const handleUserSwitch = (userId: string) => {
-        const user = users.find(u => u.id === userId);
-        if (user) {
-            // If switching to a different user, require password
-            if (currentUser && currentUser.id !== user.id) {
-                const password = window.prompt(`Inserisci la password per accedere come ${user.name}:`);
-
-                // Check against hardcoded map first, then user.password, then default
-                // We trim the name to ensure clean matching
-                const correctPassword = PASSWORD_MAP[user.name] || user.password || '1234';
-
-                if (password === correctPassword) {
-                    setCurrentUser(user);
-                } else {
-                    alert("Password errata!");
-                }
-            } else {
-                // Same user or initial load
-                setCurrentUser(user);
-            }
-        }
-    };
 
     const linkClass = ({ isActive }: { isActive: boolean }) =>
         clsx(
@@ -84,18 +52,7 @@ const Sidebar = () => {
             </nav>
 
             <div className="p-4 border-t border-gray-800 bg-gray-900/50">
-                <label className="text-[10px] text-gray-500 mb-2 block uppercase tracking-wider font-semibold">Simula Ruolo</label>
-                <select
-                    className="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm text-gray-300 focus:outline-none focus:border-blue-500 transition-colors"
-                    value={currentUser?.id}
-                    onChange={(e) => handleUserSwitch(e.target.value)}
-                >
-                    {users.map(u => (
-                        <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
-                    ))}
-                </select>
-
-                <div className="mt-4 flex items-center gap-3 text-gray-300">
+                <div className="flex items-center gap-3 text-gray-300">
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">
                         {currentUser?.name[0]}
                     </div>
@@ -103,7 +60,13 @@ const Sidebar = () => {
                         <div className="font-medium text-sm truncate">{currentUser?.name}</div>
                         <div className="text-xs text-blue-400 font-medium">{currentUser?.role}</div>
                     </div>
-                    <LogOut size={16} className="text-gray-500 cursor-pointer hover:text-white" />
+                    <button
+                        onClick={logout}
+                        className="p-2 hover:bg-gray-800 rounded-lg transition-colors group"
+                        title="Esci"
+                    >
+                        <LogOut size={18} className="text-gray-500 group-hover:text-red-400 transition-colors" />
+                    </button>
                 </div>
             </div>
             {showImport && <DataImportModal onClose={() => setShowImport(false)} />}
