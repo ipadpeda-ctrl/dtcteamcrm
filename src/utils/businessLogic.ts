@@ -78,6 +78,16 @@ export const calculateTotalLessons = (packageType: PackageType): number => {
     return PACKAGE_LESSONS[packageType] || 20; // Default fallback
 };
 
+export const shouldExpireStudent = (endDate: string): boolean => {
+    if (!endDate) return false;
+    const end = parseISO(endDate);
+    const now = new Date();
+    // Check if end date is before today (ignoring time for safety, or strictly depending on exact time)
+    // Given the requirement "expired", usually means end date has passed.
+    // Let's assume strict comparison.
+    return end < now;
+};
+
 export const isContactUrgent = (student: Student): boolean => {
     const lastContact = parseISO(student.lastContactDate);
     const now = new Date();

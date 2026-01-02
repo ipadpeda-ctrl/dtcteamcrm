@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Student, User, DBStudent } from '../types';
-import { calculateEndDate, calculateTotalLessons } from '../utils/businessLogic';
+import { calculateEndDate, calculateTotalLessons, shouldExpireStudent } from '../utils/businessLogic';
 import { supabase } from '../lib/supabase';
 
 interface AppContextType {
@@ -71,6 +71,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 })) as Student[];
 
                 setStudents(loadedStudents);
+
+                // 3. Post-Load Check: Automatic Expiration
+                const updatesToPerform = loadedStudents
+                    .filter(s => s.status === 'ACTIVE' && shouldExpireStudent(s.endDate))
+                    .map(s => s.id);
+
+                if (updatesToPerform.length > 0) {
+                    console.log(`Found ${updatesToPerform.length} students to expire automatically.`);
+
+                    // Optimistic Update (Local)
+                    setStudents(prev => prev.map(s =>
+                        updatesToPerform.includes(s.id)
+                            ? { ...s, status: 'EXPIRED' }
+                            : s
+                    ));
+
+                    // Background Sync (DB)
+                    Promise.all(updatesToPerform.map(id =>
+                        supabase.from('students').update({ status: 'EXPIRED' }).eq('id', id)
+                    )).then(() => console.log('Automatic expiration sync complete.'));
+                }
 
             } catch (error) {
                 console.error("Error fetching data:", error);

@@ -111,7 +111,6 @@ const PriorityList = ({ title, students, type, onActionClick }: { title: string,
 
 
 import { CheckCircle as CheckCircleIcon } from 'lucide-react'; // Removing duplicate, just using CheckCircle from top import
-import { BulkUpdateScript } from './BulkUpdateScript';
 
 const Dashboard = () => {
     const { students, currentUser } = useAppContext();
@@ -277,9 +276,6 @@ const Dashboard = () => {
                     onClose={() => setViewingStudent(null)}
                 />
             )}
-
-            {/* Bulk Update Script (Hidden/Owner Only) */}
-            <BulkUpdateScript />
         </div>
     );
 };
