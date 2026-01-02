@@ -201,14 +201,12 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
                                     return (
                                         <button
                                             key={tag.label}
-                                            disabled={currentUser?.role === 'RENEWALS'} // Disabled for Renewals
                                             onClick={() => toggleTag(tag.label)}
                                             className={clsx(
                                                 "px-3 py-1.5 rounded-lg text-sm font-medium border transition-all flex items-center gap-2",
                                                 isSelected
                                                     ? tag.color + " ring-2 ring-offset-2 ring-offset-gray-900 ring-blue-500/50"
-                                                    : "bg-gray-900 text-gray-400 border-gray-800 hover:bg-gray-800 hover:text-gray-200",
-                                                currentUser?.role === 'RENEWALS' && "opacity-50 cursor-not-allowed hover:bg-transparent hover:text-gray-400"
+                                                    : "bg-gray-900 text-gray-400 border-gray-800 hover:bg-gray-800 hover:text-gray-200"
                                             )}
                                         >
                                             {isSelected && <CheckCircle size={12} />}
@@ -217,9 +215,7 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
                                     );
                                 })}
                             </div>
-                            {currentUser?.role === 'RENEWALS' && (
-                                <p className="text-xs text-yellow-500/80 mt-2">Il Responsabile Rinnovi non può modificare i tag di difficoltà.</p>
-                            )}
+
                         </div>
                     )}
 

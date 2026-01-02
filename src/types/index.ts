@@ -51,7 +51,7 @@ export interface DBStudent {
     notes?: string;
     difficulty_tags?: string[];
     is_renewed?: boolean;
-    renewal_date?: string;
+    renewal_date?: string | null;
     call_booked?: boolean;
     original_coach_id?: string | null;
 }

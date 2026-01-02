@@ -256,7 +256,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
         if (updates.coachComment !== undefined) dbUpdates.coach_comment = updates.coachComment;
         if (updates.isRenewed !== undefined) dbUpdates.is_renewed = updates.isRenewed;
-        if (updates.renewalDate !== undefined) dbUpdates.renewal_date = updates.renewalDate;
+        if (updates.renewalDate !== undefined) dbUpdates.renewal_date = updates.renewalDate === '' ? null : updates.renewalDate;
         if (updates.callBooked !== undefined) dbUpdates.call_booked = updates.callBooked;
         if (updates.originalCoachId !== undefined) dbUpdates.original_coach_id = updates.originalCoachId;
 
