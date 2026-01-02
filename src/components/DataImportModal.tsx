@@ -21,7 +21,7 @@ const REQUIRED_FIELDS: { key: RequiredField; label: string; required: boolean }[
 ];
 
 const DataImportModal = ({ onClose }: DataImportModalProps) => {
-    const { addStudent, users } = useAppContext();
+    const { addStudent, users, currentUser } = useAppContext();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // State
@@ -127,7 +127,7 @@ const DataImportModal = ({ onClose }: DataImportModalProps) => {
                     startDate,
                     lessonsDone,
                     totalLessons,
-                    coachId: coach?.id || '2', // Default to Matteo
+                    coachId: coach?.id || currentUser?.id || users[0]?.id, // Default to current user or first admin
                     status: 'ACTIVE' as const
                 };
 
