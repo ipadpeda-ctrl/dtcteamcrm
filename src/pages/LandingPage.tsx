@@ -2,14 +2,25 @@ import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import type { User, Role } from '../types';
 import { useNavigate } from 'react-router-dom';
-import { Lock, User as UserIcon, Shield, Headphones, Briefcase, ArrowRight } from 'lucide-react';
+import { Lock, User as UserIcon, Shield, Headphones, Briefcase, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const LandingPage = () => {
     const { users, login, isLoading } = useAppContext();
     const navigate = useNavigate();
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+
+    // Temporary hardcoded credentials until DB is updated
+    const CREDENTIALS: Record<string, string> = {
+        'Simone': 'simodtc!!',
+        'Matteo': 'Mattepeda',
+        'Samuela': 'Samusamu123',
+        'Thomas': 'thommm11',
+        'Responsabile rinnovi': 'Luccc901',
+        'Supportochat': 'Poilkj'
+    };
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -18,9 +29,11 @@ const LandingPage = () => {
         if (!selectedUser) return;
 
         // Check password
-        // Priority: 1. User specific password from DB, 2. Master password provided by user
-        const masterPass = "Dtcteamsimo!";
-        const isValid = (selectedUser.password && selectedUser.password === password) || password === masterPass;
+        // Priority: 1. Hardcoded map, 2. User specific password from DB
+        const cleanName = selectedUser.name.trim();
+        const userPass = CREDENTIALS[cleanName] || selectedUser.password;
+
+        const isValid = userPass && userPass === password;
 
         if (isValid) {
             login(selectedUser);
@@ -95,13 +108,20 @@ const LandingPage = () => {
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="Password"
-                                        className="w-full bg-gray-950 border border-gray-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                                        className="w-full bg-gray-950 border border-gray-800 rounded-lg py-3 pl-10 pr-12 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                                         autoFocus
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
                                 </div>
 
                                 {error && (
