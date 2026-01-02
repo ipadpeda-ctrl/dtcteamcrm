@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { Student, User } from '../types';
+import type { Student, User, DBStudent } from '../types';
 import { calculateEndDate, calculateTotalLessons } from '../utils/businessLogic';
 import { supabase } from '../lib/supabase';
 
@@ -12,8 +12,10 @@ interface AppContextType {
     updateStudent: (id: string, updates: Partial<Student>) => void;
     markAsContacted: (id: string) => void;
     addComment: (id: string, comment: string) => void;
-    addStudent: (student: Omit<Student, 'id' | 'endDate' | 'lastContactDate' | 'status' | 'difficultyTags' | 'notes'> & Partial<Student>) => void;
+    addStudent: (student: Omit<Student, 'id' | 'endDate' | 'lastContactDate' | 'status' | 'difficultyTags' | 'notes'> & Partial<Student>) => Promise<boolean>;
     removeStudent: (id: string) => void;
+    login: (user: User) => void;
+    logout: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -39,12 +41,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 const loadedUsers = usersData as User[];
                 setUsers(loadedUsers);
 
-                // Set default user if not set
-                if (loadedUsers.length > 0 && !currentUser) {
-                    // Try to find OWNER, otherwise first user
-                    setCurrentUser(loadedUsers.find(u => u.role === 'OWNER') || loadedUsers[0]);
-                }
-
                 // 2. Fetch Students
                 const { data: studentsData, error: studentsError } = await supabase
                     .from('students')
@@ -53,7 +49,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 if (studentsError) throw studentsError;
 
                 // Map DB (snake_case) to Frontend (camelCase)
-                const loadedStudents = (studentsData || []).map((s: any) => ({
+                const loadedStudents = (studentsData as unknown as DBStudent[] || []).map((s) => ({
                     id: s.id,
                     name: s.name,
                     email: s.email,
@@ -84,9 +80,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
 
         fetchData();
-    }, []); // Run once on mount
+    }, []);
 
-    const addStudent = async (studentData: Omit<Student, 'id' | 'endDate' | 'lastContactDate' | 'status' | 'difficultyTags' | 'notes'> & Partial<Student>) => {
+    // Check for saved session
+    useEffect(() => {
+        const savedUserId = localStorage.getItem('dtc_cur_user_id');
+        if (users.length > 0 && !currentUser && savedUserId) {
+            const foundUser = users.find(u => u.id === savedUserId);
+            if (foundUser) {
+                setCurrentUser(foundUser);
+            }
+        }
+    }, [users, currentUser]);
+
+    const login = (user: User) => {
+        setCurrentUser(user);
+        localStorage.setItem('dtc_cur_user_id', user.id);
+    };
+
+    const logout = () => {
+        setCurrentUser(null);
+        localStorage.removeItem('dtc_cur_user_id');
+    };
+
+    const addStudent = async (studentData: Omit<Student, 'id' | 'endDate' | 'lastContactDate' | 'status' | 'difficultyTags' | 'notes'> & Partial<Student>): Promise<boolean> => {
         const pkg = studentData.package!;
         const startDate = studentData.startDate!;
 
@@ -115,7 +132,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         if (error) {
             console.error("Error adding student:", error);
-            return;
+            return false;
         }
 
         // Add to local state (map back to camelCase)
@@ -141,6 +158,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
 
         setStudents(prev => [...prev, newStudent]);
+        return true;
     };
 
     const removeStudent = async (id: string) => {
@@ -154,7 +172,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const updateStudent = async (id: string, updates: Partial<Student>) => {
         // Map updates to snake_case for DB
-        const dbUpdates: any = {};
+        const dbUpdates: Partial<DBStudent> = {};
         if (updates.name !== undefined) dbUpdates.name = updates.name;
         if (updates.email !== undefined) dbUpdates.email = updates.email;
         if (updates.package !== undefined) dbUpdates.package = updates.package;
@@ -203,7 +221,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             markAsContacted,
             addComment,
             addStudent,
-            removeStudent
+            removeStudent,
+            login,
+            logout
         }}>
             {children}
         </AppContext.Provider>

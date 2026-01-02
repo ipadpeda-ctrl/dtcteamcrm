@@ -86,12 +86,12 @@ const DataImportModal = ({ onClose }: DataImportModalProps) => {
         setColumnMapping(prev => ({ ...prev, [fieldKey]: header }));
     };
 
-    const executeImport = () => {
+    const executeImport = async () => {
         setStep('PROCESSING');
         let successCount = 0;
         let errorCount = 0;
 
-        csvRows.forEach(row => {
+        for (const row of csvRows) {
             try {
                 // Helper to get value from row based on mapping
                 const getValue = (key: RequiredField) => {
@@ -106,7 +106,7 @@ const DataImportModal = ({ onClose }: DataImportModalProps) => {
 
                 if (!name || (!email && REQUIRED_FIELDS.find(f => f.key === 'email')?.required)) {
                     errorCount++; // Skip rows without critical data
-                    return;
+                    continue;
                 }
 
                 const pkg = (getValue('package') || 'Silver') as PackageType;
@@ -129,13 +129,18 @@ const DataImportModal = ({ onClose }: DataImportModalProps) => {
                     status: 'ACTIVE' as const
                 };
 
-                addStudent(newStudent as Omit<Student, 'id' | 'status' | 'endDate' | 'lastContactDate' | 'difficultyTags' | 'notes'>);
-                successCount++;
+                const success = await addStudent(newStudent as Omit<Student, 'id' | 'status' | 'endDate' | 'lastContactDate' | 'difficultyTags' | 'notes'>);
+
+                if (success) {
+                    successCount++;
+                } else {
+                    errorCount++;
+                }
             } catch (err) {
                 console.error("Import error row", row, err);
                 errorCount++;
             }
-        });
+        }
 
         setStats({ total: successCount + errorCount, success: successCount, errors: errorCount });
         setStep('COMPLETE');

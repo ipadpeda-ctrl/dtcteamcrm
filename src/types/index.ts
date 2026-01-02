@@ -34,3 +34,24 @@ export interface User {
     avatar?: string;
     password?: string;
 }
+
+export interface DBStudent {
+    id: string;
+    name: string;
+    email?: string;
+    package: PackageType;
+    start_date: string;
+    end_date: string;
+    coach_id: string;
+    lessons_done: number;
+    total_lessons: number;
+    last_contact_date: string;
+    status: StudentStatus;
+    coach_comment?: string;
+    notes?: string;
+    difficulty_tags?: string[];
+    is_renewed?: boolean;
+    renewal_date?: string;
+    call_booked?: boolean;
+    original_coach_id?: string;
+}
