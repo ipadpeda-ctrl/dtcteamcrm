@@ -18,8 +18,12 @@ const LandingPage = () => {
         'Matteo': 'Mattepeda',
         'Samuela': 'Samusamu123',
         'Thomas': 'thommm11',
+        // Variations for better matching
         'Responsabile rinnovi': 'Luccc901',
-        'Supportochat': 'Poilkj'
+        'Responsabile Rinnovi': 'Luccc901', // Capitalized possibility
+        'Supportochat': 'Poilkj',
+        'Supporto Chat': 'Poilkj',          // Spaced possibility
+        'Supporto': 'Poilkj'                // Shortened possibility
     };
 
     const handleLogin = (e: React.FormEvent) => {
