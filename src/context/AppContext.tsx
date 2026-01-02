@@ -124,8 +124,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         let finalCoachId: string | null = isValidId(studentData.coachId) ? studentData.coachId :
             (isValidId(currentUser?.id) ? currentUser?.id : (realAuthUserId || null));
 
-        // Final safety net: if even realAuthUserId is somehow missing/invalid, send null
-        // Force NULL (not undefined) to override any potential bad DB default values
+        // Logic for Original Coach ID (Must be strict Auth User)
+        let finalOriginalCoachId = realAuthUserId || null;
+
+        // Final safety check for Coach ID (Public User)
         if (!isValidId(finalCoachId)) {
             finalCoachId = null;
         } else {
@@ -140,10 +142,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             }
         }
 
-        // If we still don't have a valid coach ID, we can't insert (or should insert with null if allowed, but schema has foreign key)
-        // Ideally we should have a fallback. If foreign key allows null, we send null.
-        // If foreign key is NOT NULL, we have a problem if we can't find a user.
-        // Assuming we have a logged in user, currentUser.id is our best bet.
+        // Final safety check for Original Coach ID (Auth User)
+        // If the logged in user is somehow not a valid UUID (impossible but safe checks)
+        if (!isValidId(finalOriginalCoachId)) {
+            finalOriginalCoachId = null;
+        }
+
+        // Add extensive logging to debugging
+        console.log('--- ADDING STUDENT DEBUG ---');
+        console.log('Public Users Loaded:', users.length);
+        console.log('Real Auth User ID:', realAuthUserId);
+        console.log('Final Public Coach ID:', finalCoachId);
+        console.log('Final Original Coach ID (Auth):', finalOriginalCoachId);
+        console.log('----------------------------');
 
         const dbStudent = {
             name: studentData.name,
@@ -154,7 +165,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             total_lessons: studentData.totalLessons || calculateTotalLessons(pkg),
             lessons_done: studentData.lessonsDone || 0,
             coach_id: finalCoachId,
-            original_coach_id: finalCoachId, // Keep aligned with coach_id for new students
+            original_coach_id: finalOriginalCoachId, // Strictly valid Auth User
             status: 'ACTIVE',
             last_contact_date: new Date().toISOString(),
             difficulty_tags: [],
