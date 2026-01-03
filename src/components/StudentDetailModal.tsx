@@ -29,17 +29,26 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
     const handleSave = () => {
         // If renewed, the main endDate should be updated to the renewal date
         const newEndDate = formData.isRenewed && formData.renewalDate ? formData.renewalDate : student.endDate;
-        
+
         // Calculate new status
         let newStatus = student.status;
-        
+
         // Logic: If the new end date is in the future, the student should be ACTIVE
         // This handles both Renewal cases and manual date extensions
         if (newEndDate) {
             const end = new Date(newEndDate);
             const now = new Date();
+            console.log('--- HANDLE SAVE DEBUG ---');
+            console.log('Original Status:', student.status);
+            console.log('Is Renewed:', formData.isRenewed);
+            console.log('New End Date String:', newEndDate);
+            console.log('Parsed End Date:', end);
+            console.log('Now:', now);
+            console.log('End > Now:', end > now);
+
             if (end > now) {
                 newStatus = 'ACTIVE';
+                console.log('Setting Status to ACTIVE');
             }
         }
 
