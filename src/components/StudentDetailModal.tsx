@@ -58,6 +58,7 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
             ...formData,
             endDate: newEndDate,
             status: newStatus,
+            contactOutcome: formData.contactOutcome === '' ? undefined : formData.contactOutcome as Student['contactOutcome'],
             // If outcome changed or added, update date
             contactOutcomeDate: (formData.contactOutcome && formData.contactOutcome !== student.contactOutcome)
                 ? new Date().toISOString()
@@ -246,12 +247,12 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
                                                     <option value="NO_ANSWER">📞 Non Risponde</option>
                                                 </select>
                                             </div>
-                                            {formData.contactOutcome && formData.contactOutcome !== 'POSITIVE' && (
+                                            {formData.contactOutcome && (
                                                 <div>
-                                                    <label className="text-xs text-gray-500 mb-1 block">Note Esito</label>
+                                                    <label className="text-xs text-gray-500 mb-1 block">Note / Dettagli (Opzionale)</label>
                                                     <input
                                                         type="text"
-                                                        placeholder="Dettagli..."
+                                                        placeholder="Scrivi qui eventuali dettagli..."
                                                         className="w-full bg-gray-900 border border-gray-800 rounded-lg p-2 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                                                         value={formData.contactNotes}
                                                         onChange={e => setFormData(prev => ({ ...prev, contactNotes: e.target.value }))}
