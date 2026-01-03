@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Phone, CheckCircle, Save } from 'lucide-react';
+import { X, Phone, CheckCircle, Save, MessageCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAppContext } from '../context/AppContext';
 import { DIFFICULTY_TAGS } from '../utils/tagUtils';
@@ -23,7 +23,9 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
         difficultyTags: student.difficultyTags || [],
         notes: student.notes || '',
         coachComment: student.coachComment || '',
-        coachId: student.coachId
+        coachId: student.coachId,
+        contactOutcome: student.contactOutcome || '',
+        contactNotes: student.contactNotes || ''
     });
 
     const handleSave = () => {
@@ -55,7 +57,11 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
         const updates: Partial<Student> = {
             ...formData,
             endDate: newEndDate,
-            status: newStatus
+            status: newStatus,
+            // If outcome changed or added, update date
+            contactOutcomeDate: (formData.contactOutcome && formData.contactOutcome !== student.contactOutcome)
+                ? new Date().toISOString()
+                : student.contactOutcomeDate
         };
         updateStudent(student.id, updates);
         onClose();
@@ -214,6 +220,74 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Contact Outcome Section - Visible to All, Editable by RENEWALS/OWNER */}
+                            <div className="bg-gray-950/50 p-4 rounded-xl border border-gray-800 space-y-4">
+                                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                                    <MessageCircle size={16} /> Esito Ultimo Contatto
+                                </h3>
+
+                                {(currentUser?.role === 'OWNER' || currentUser?.role === 'RENEWALS') ? (
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-xs text-gray-500 mb-1 block">Esito</label>
+                                                <select
+                                                    className="w-full bg-gray-900 border border-gray-800 rounded-lg p-2 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                                    value={formData.contactOutcome}
+                                                    onChange={e => setFormData(prev => ({ ...prev, contactOutcome: e.target.value as any }))}
+                                                >
+                                                    <option value="">Seleziona esito...</option>
+                                                    <option value="POSITIVE">✅ Rinnovato</option>
+                                                    <option value="NEGATIVE_PRICE">❌ Troppo Costoso</option>
+                                                    <option value="NEGATIVE_NOT_INTERESTED">❌ Non Interessato</option>
+                                                    <option value="NEGATIVE_OTHER">❌ Altro Motivo</option>
+                                                    <option value="NEUTRAL_BUSY">⏳ Richiamare (Impegnato)</option>
+                                                    <option value="NO_ANSWER">📞 Non Risponde</option>
+                                                </select>
+                                            </div>
+                                            {formData.contactOutcome && formData.contactOutcome !== 'POSITIVE' && (
+                                                <div>
+                                                    <label className="text-xs text-gray-500 mb-1 block">Note Esito</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Dettagli..."
+                                                        className="w-full bg-gray-900 border border-gray-800 rounded-lg p-2 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                                        value={formData.contactNotes}
+                                                        onChange={e => setFormData(prev => ({ ...prev, contactNotes: e.target.value }))}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    /* Read Only View */
+                                    <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-800">
+                                        {student.contactOutcome ? (
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <div className="font-medium text-white">
+                                                        {student.contactOutcome === 'POSITIVE' && '✅ Rinnovato'}
+                                                        {student.contactOutcome === 'NEGATIVE_PRICE' && '❌ Troppo Costoso'}
+                                                        {student.contactOutcome === 'NEGATIVE_NOT_INTERESTED' && '❌ Non Interessato'}
+                                                        {student.contactOutcome === 'NEGATIVE_OTHER' && '❌ Altro Motivo'}
+                                                        {student.contactOutcome === 'NEUTRAL_BUSY' && '⏳ Richiamare'}
+                                                        {student.contactOutcome === 'NO_ANSWER' && '📞 Non Risponde'}
+                                                    </div>
+                                                    {student.contactNotes && (
+                                                        <div className="text-sm text-gray-400 mt-1">"{student.contactNotes}"</div>
+                                                    )}
+                                                </div>
+                                                <div className="text-xs text-gray-500 font-mono">
+                                                    {student.contactOutcomeDate && format(new Date(student.contactOutcomeDate), 'dd MMM yyyy')}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="text-sm text-gray-500 italic text-center">Nessun esito registrato</div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 
@@ -275,8 +349,8 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
                         Salva Modifiche
                     </button>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

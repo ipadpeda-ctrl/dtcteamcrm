@@ -8,6 +8,15 @@ import { isContactUrgent } from '../utils/businessLogic';
 import { differenceInDays, format } from 'date-fns';
 import clsx from 'clsx';
 
+const OUTCOME_LABELS: Record<string, string> = {
+    'POSITIVE': '✅ Rinnovato',
+    'NEGATIVE_PRICE': '❌ Troppo Costoso',
+    'NEGATIVE_NOT_INTERESTED': '❌ Non Interessato',
+    'NEGATIVE_OTHER': '❌ Altro',
+    'NEUTRAL_BUSY': '⏳ Richiamare',
+    'NO_ANSWER': '📞 Non Risponde'
+};
+
 interface StatCardProps {
     title: string;
     value: number | string;
@@ -65,8 +74,14 @@ const PriorityList = ({ title, students, type, onActionClick }: { title: string,
                         {/* Show Difficulty Tags & Notes directly in the list for RENEWAL type */}
                         {type === 'RENEWAL' && (
                             <div className="mt-2 space-y-1">
+                                {s.contactOutcome && (
+                                    <div className="text-xs font-semibold text-white bg-blue-500/20 px-2 py-1 rounded inline-block border border-blue-500/30">
+                                        Ultimo: {OUTCOME_LABELS[s.contactOutcome] || s.contactOutcome}
+                                        {s.contactOutcomeDate && <span className="text-gray-400 font-normal ml-1">({format(new Date(s.contactOutcomeDate), 'dd MMM')})</span>}
+                                    </div>
+                                )}
                                 {s.difficultyTags && s.difficultyTags.length > 0 && (
-                                    <div className="flex flex-wrap gap-1">
+                                    <div className="flex flex-wrap gap-1 mt-1">
                                         {s.difficultyTags.map(tag => (
                                             <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded border bg-red-500/10 text-red-500 border-red-500/20">
                                                 {tag}
@@ -74,9 +89,9 @@ const PriorityList = ({ title, students, type, onActionClick }: { title: string,
                                         ))}
                                     </div>
                                 )}
-                                {s.coachComment && (
+                                {(s.coachComment || s.contactNotes) && (
                                     <div className="text-xs text-gray-400 italic bg-gray-950/50 p-2 rounded border border-gray-800 mt-1">
-                                        "{s.coachComment}"
+                                        "{s.contactNotes || s.coachComment}"
                                     </div>
                                 )}
                             </div>
@@ -135,11 +150,17 @@ const Dashboard = () => {
         return daysLeft >= 0 && daysLeft <= 30;
     });
 
-    const renewalPriority = studentsIn30DayRenewalWindow.filter(s => {
+    const urgentRenewals = studentsIn30DayRenewalWindow.filter(s => {
         if (!s.endDate) return false;
         const daysLeft = differenceInDays(new Date(s.endDate), new Date());
-        // Priority if expires in < 7 days OR lessons > 80% (assuming 20 for logic demo)
-        return (daysLeft >= 0 && daysLeft <= 7) || s.lessonsDone >= 16;
+        // Urgent: Left < 7 days OR High Lessons BUT Priority is for real deadlines
+        return (daysLeft >= 0 && daysLeft <= 7);
+    });
+
+    const upcomingRenewals = studentsIn30DayRenewalWindow.filter(s => {
+        if (!s.endDate) return false;
+        const daysLeft = differenceInDays(new Date(s.endDate), new Date());
+        return (daysLeft > 7 && daysLeft <= 30);
     });
 
     const supportPriority = students.filter(s => isContactUrgent(s));
@@ -195,14 +216,23 @@ const Dashboard = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <PriorityList
-                            title="Coda Prioritaria Rinnovi"
-                            students={renewalPriority}
+                            title="🚨 In Scadenza (Urgente < 7gg)"
+                            students={urgentRenewals}
                             type="RENEWAL"
                             onActionClick={setViewingStudent}
                         />
                         <PriorityList
-                            title="Difficoltà in Scadenza"
-                            students={studentsIn30DayRenewalWindow.filter(s => (s.difficultyTags && s.difficultyTags.length > 0) || s.coachComment)}
+                            title="📅 Prossimi Rinnovi (30gg)"
+                            students={upcomingRenewals}
+                            type="RENEWAL"
+                            onActionClick={setViewingStudent}
+                        />
+                    </div>
+
+                    <div className="mt-6 mb-2">
+                        <PriorityList
+                            title="⚠️ Difficoltà Segnalate"
+                            students={studentsIn30DayRenewalWindow.filter(s => (s.difficultyTags && s.difficultyTags.length > 0))}
                             type="RENEWAL"
                             onActionClick={setViewingStudent}
                         />
@@ -247,7 +277,7 @@ const Dashboard = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
                         {(currentUser?.role === 'OWNER') && (
                             <>
-                                <PriorityList title="Coda Prioritaria Rinnovi" students={renewalPriority} type="RENEWAL" onActionClick={setViewingStudent} />
+                                <PriorityList title="🚨 Rinnovi Urgenti" students={urgentRenewals} type="RENEWAL" onActionClick={setViewingStudent} />
                                 <PriorityList title="Urgenza Contatti" students={supportPriority} type="SUPPORT" onActionClick={setViewingStudent} />
                             </>
                         )}

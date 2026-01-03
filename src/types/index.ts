@@ -25,6 +25,10 @@ export interface Student {
     callBooked?: boolean;
     // Phase 4: Coach History
     originalCoachId?: string;
+    // Phase 5: Renewal Management
+    contactOutcome?: 'POSITIVE' | 'NEGATIVE_PRICE' | 'NEGATIVE_NOT_INTERESTED' | 'NEGATIVE_OTHER' | 'NEUTRAL_BUSY' | 'NO_ANSWER';
+    contactOutcomeDate?: string; // ISO Date for the specific outcome
+    contactNotes?: string; // Specific note for the outcome
 }
 
 export interface User {
