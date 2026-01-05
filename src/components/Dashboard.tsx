@@ -230,97 +230,95 @@ const Dashboard = () => {
                         />
                     </div>
 
-                </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 mb-2">
-                <ContactOutcomeTable students={studentsIn30DayRenewalWindow} />
-                <PriorityList
-                    title="⚠️ Difficoltà Segnalate"
-                    students={studentsIn30DayRenewalWindow.filter(s => (s.difficultyTags && s.difficultyTags.length > 0))}
-                    type="RENEWAL"
-                    onActionClick={setViewingStudent}
-                />
-            </div>
-        </>
-    ) : (
-        /* GENERIC / OWNER / COACH VIEW */
-        <>
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                    title="Studenti Totali"
-                    value={totalStudents}
-                    icon={Users}
-                    color="blue"
-                    className="hover:border-blue-500/50"
-                />
-                <StatCard
-                    title="Da Contattare"
-                    value={urgentContacts}
-                    icon={MessageCircle}
-                    color="red"
-                    className="hover:border-red-500/50"
-                />
-                <StatCard
-                    title="In Scadenza (7gg)"
-                    value={expiringSoon}
-                    icon={AlertTriangle}
-                    color="yellow"
-                    className="hover:border-yellow-500/50"
-                />
-                <StatCard
-                    title="Active Rate"
-                    value={`${visibleStudents.length > 0 ? Math.round((visibleStudents.filter(s => s.status === 'ACTIVE').length / visibleStudents.length) * 100) : 0}%`}
-                    icon={TrendingUp}
-                    color="green"
-                    className="hover:border-green-500/50"
-                />
-            </div>
-
-            {/* Role Specific Priority Lists */}
-            <div className="grid grid-cols-1 gap-6 mt-8">
-                {(currentUser?.role === 'OWNER') && (
-                    <div className="mb-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 mb-2">
                         <ContactOutcomeTable students={studentsIn30DayRenewalWindow} />
+                        <PriorityList
+                            title="⚠️ Difficoltà Segnalate"
+                            students={studentsIn30DayRenewalWindow.filter(s => (s.difficultyTags && s.difficultyTags.length > 0))}
+                            type="RENEWAL"
+                            onActionClick={setViewingStudent}
+                        />
                     </div>
-                )}
+                </>
+            ) : (
+                /* GENERIC / OWNER / COACH VIEW */
+                <>
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <StatCard
+                            title="Studenti Totali"
+                            value={totalStudents}
+                            icon={Users}
+                            color="blue"
+                            className="hover:border-blue-500/50"
+                        />
+                        <StatCard
+                            title="Da Contattare"
+                            value={urgentContacts}
+                            icon={MessageCircle}
+                            color="red"
+                            className="hover:border-red-500/50"
+                        />
+                        <StatCard
+                            title="In Scadenza (7gg)"
+                            value={expiringSoon}
+                            icon={AlertTriangle}
+                            color="yellow"
+                            className="hover:border-yellow-500/50"
+                        />
+                        <StatCard
+                            title="Active Rate"
+                            value={`${visibleStudents.length > 0 ? Math.round((visibleStudents.filter(s => s.status === 'ACTIVE').length / visibleStudents.length) * 100) : 0}%`}
+                            icon={TrendingUp}
+                            color="green"
+                            className="hover:border-green-500/50"
+                        />
+                    </div>
+
+                    {/* Role Specific Priority Lists */}
+                    <div className="grid grid-cols-1 gap-6 mt-8">
+                        {(currentUser?.role === 'OWNER') && (
+                            <div className="mb-6">
+                                <ContactOutcomeTable students={studentsIn30DayRenewalWindow} />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {(currentUser?.role === 'OWNER') && (
+                            <>
+                                <PriorityList title="🚨 Rinnovi Urgenti" students={urgentRenewals} type="RENEWAL" onActionClick={setViewingStudent} />
+                                <PriorityList title="Urgenza Contatti" students={supportPriority} type="SUPPORT" onActionClick={setViewingStudent} />
+                            </>
+                        )}
+                        {/* Support sees Support Queue */}
+                        {(currentUser?.role === 'SUPPORT') && (
+                            <PriorityList title="Urgenza Contatti" students={supportPriority} type="SUPPORT" onActionClick={setViewingStudent} />
+                        )}
+                    </div>
+                </>
+            )
+            }
+
+            <div className="space-y-4 pt-4 border-t border-gray-800/50">
+                <div className="flex justify-between items-end">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <Users size={20} className="text-blue-500" />
+                        Management Studenti
+                    </h3>
+                </div>
+                <StudentTable />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {(currentUser?.role === 'OWNER') && (
-                    <>
-                        <PriorityList title="🚨 Rinnovi Urgenti" students={urgentRenewals} type="RENEWAL" onActionClick={setViewingStudent} />
-                        <PriorityList title="Urgenza Contatti" students={supportPriority} type="SUPPORT" onActionClick={setViewingStudent} />
-                    </>
-                )}
-                {/* Support sees Support Queue */}
-                {(currentUser?.role === 'SUPPORT') && (
-                    <PriorityList title="Urgenza Contatti" students={supportPriority} type="SUPPORT" onActionClick={setViewingStudent} />
-                )}
-            </div>
-        </>
-    )
-}
-
-<div className="space-y-4 pt-4 border-t border-gray-800/50">
-    <div className="flex justify-between items-end">
-        <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <Users size={20} className="text-blue-500" />
-            Management Studenti
-        </h3>
-    </div>
-    <StudentTable />
-</div>
-
-{/* Modal */ }
-{
-    viewingStudent && (
-        <StudentDetailModal
-            student={viewingStudent}
-            onClose={() => setViewingStudent(null)}
-        />
-    )
-}
+            {/* Modal */}
+            {
+                viewingStudent && (
+                    <StudentDetailModal
+                        student={viewingStudent}
+                        onClose={() => setViewingStudent(null)}
+                    />
+                )
+            }
         </div >
     );
 };
