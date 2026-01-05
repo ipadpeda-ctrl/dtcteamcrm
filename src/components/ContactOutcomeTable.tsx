@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Student } from '../types';
-import { clsx } from 'clsx';
+
 import { PieChart } from 'lucide-react';
 
 interface ContactOutcomeTableProps {
@@ -79,11 +79,11 @@ const ContactOutcomeTable = ({ students }: ContactOutcomeTableProps) => {
                     </tbody>
                 </table>
             </div>
-             {stats.every(r => r.count === 0) && (
-                 <div className="p-8 text-center text-gray-500">
-                     Nessun esito registrato nel periodo/selezione.
-                 </div>
-             )}
+            {stats.every(r => r.count === 0) && (
+                <div className="p-8 text-center text-gray-500">
+                    Nessun esito registrato nel periodo/selezione.
+                </div>
+            )}
         </div>
     );
 };
