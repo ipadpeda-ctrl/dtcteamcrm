@@ -93,39 +93,40 @@ export const isContactUrgent = (student: Student): boolean => {
     const now = new Date();
 
     if (student.status === 'ACTIVE') {
-        if (student.isRenewed) {
-            // Renewed: Urgent if it's the next calendar day (or later)
-            return differenceInCalendarDays(now, lastContact) >= 1;
+        if (student.status === 'ACTIVE') {
+            if (student.isRenewed) {
+                // Renewed: Urgent if it's the next calendar day (or later)
+                return differenceInCalendarDays(now, lastContact) >= 1;
+            }
+            // Active but not renewed: Urgent if > 24 hours (1 day)
+            return differenceInHours(now, lastContact) >= 24;
+        } else {
+            // Terminated/Not Renewed: Urgent if > 10 days
+            return differenceInDays(now, lastContact) >= 10;
         }
-        // Active but not renewed: Urgent if > 24 hours (1 day)
-        return differenceInHours(now, lastContact) >= 24;
-    } else {
-        // Terminated/Not Renewed: Urgent if > 10 days
-        return differenceInDays(now, lastContact) >= 10;
-    }
-};
-export const parseDateSafe = (dateStr: string): string => {
-    if (!dateStr) return new Date().toISOString();
+    };
+    export const parseDateSafe = (dateStr: string): string => {
+        if (!dateStr) return new Date().toISOString();
 
-    // Try standard ISO
-    let date = parseISO(dateStr);
-    if (isValid(date)) return date.toISOString();
-
-    // Try Common Italian formats
-    const formats = [
-        'dd/MM/yyyy',
-        'dd-MM-yyyy',
-        'd/M/yyyy',
-        'd-M-yyyy',
-        'yyyy/MM/dd',
-        'yyyy-MM-dd'
-    ];
-
-    for (const fmt of formats) {
-        date = parse(dateStr, fmt, new Date());
+        // Try standard ISO
+        let date = parseISO(dateStr);
         if (isValid(date)) return date.toISOString();
-    }
 
-    console.warn(`Could not parse date: ${dateStr}, defaulting to now`);
-    return new Date().toISOString();
-};
+        // Try Common Italian formats
+        const formats = [
+            'dd/MM/yyyy',
+            'dd-MM-yyyy',
+            'd/M/yyyy',
+            'd-M-yyyy',
+            'yyyy/MM/dd',
+            'yyyy-MM-dd'
+        ];
+
+        for (const fmt of formats) {
+            date = parse(dateStr, fmt, new Date());
+            if (isValid(date)) return date.toISOString();
+        }
+
+        console.warn(`Could not parse date: ${dateStr}, defaulting to now`);
+        return new Date().toISOString();
+    };
