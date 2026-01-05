@@ -1,7 +1,7 @@
 
-import { isContactUrgent, shouldExpireStudent, calculateEndDate } from '../src/utils/businessLogic';
+import { isContactUrgent } from '../src/utils/businessLogic';
 import { Student } from '../src/types';
-import { addHours, subDays, subHours } from 'date-fns';
+import { subDays, subHours } from 'date-fns';
 
 const createMockStudent = (status: 'ACTIVE' | 'EXPIRED' | 'NOT_RENEWED', isRenewed: boolean, lastContactDate: string): Student => ({
     id: '1',
@@ -26,7 +26,7 @@ const now = new Date();
 // Helper to ensure we get a date that is definitely yesterday but < 24h if possible, 
 // or just modify the test expectation.
 // If now is 15:00, yesterday 20:00 is 19 hours ago (<24h) but is yesterday.
-const yesterdayLate = subHours(now, 20); // 20 hours ago. 
+// 20 hours ago. 
 // Note: If now is very early (e.g. 01:00), 20h ago is yesterday 05:00.
 // If now is late (e.g. 23:00), 20h ago is today 03:00.
 // So hardcoding 'hours' is risky for calendar day tests without knowing current time.
@@ -50,7 +50,7 @@ const yesterdayLate = subHours(now, 20); // 20 hours ago.
 // For the purpose of this script, I will assume typical working hours or just run it.
 // Actually, I can construct a specific case:
 // Case 2b: "Yesterday" (Next Day Logic) checking.
-const yesterday = subDays(now, 1); // Exactly 24h ago? `subDays` usually preserves time.
+// `subDays` usage below
 // `subDays(d, 1)` -> d minus 24 hours.
 // So if I use `subHours(now, 23)`, it is 23h ago.
 // If now is 15:00, 23h ago is yesterday 16:00. Day diff = 1. Hour diff = 23.

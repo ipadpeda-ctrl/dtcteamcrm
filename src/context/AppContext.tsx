@@ -68,7 +68,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                     renewalDate: s.renewal_date,
                     callBooked: s.call_booked,
                     originalCoachId: s.original_coach_id,
-                    contactOutcome: s.contact_outcome as any,
+                    contactOutcome: s.contact_outcome as Student['contactOutcome'],
                     contactNotes: s.contact_notes,
                     contactOutcomeDate: s.contact_outcome_date
                 })) as Student[];

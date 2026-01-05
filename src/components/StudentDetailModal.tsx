@@ -236,7 +236,7 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
                                                 <select
                                                     className="w-full bg-gray-900 border border-gray-800 rounded-lg p-2 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                                                     value={formData.contactOutcome}
-                                                    onChange={e => setFormData(prev => ({ ...prev, contactOutcome: e.target.value as any }))}
+                                                    onChange={e => setFormData(prev => ({ ...prev, contactOutcome: e.target.value }))}
                                                 >
                                                     <option value="">Seleziona esito...</option>
                                                     <option value="POSITIVE">✅ Rinnovato</option>
