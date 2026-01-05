@@ -58,4 +58,7 @@ export interface DBStudent {
     renewal_date?: string | null;
     call_booked?: boolean;
     original_coach_id?: string | null;
+    contact_outcome?: string;
+    contact_notes?: string;
+    contact_outcome_date?: string;
 }
