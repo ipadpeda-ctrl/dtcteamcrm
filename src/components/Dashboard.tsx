@@ -230,7 +230,7 @@ const Dashboard = () => {
                         />
                     </div>
 
-                </div >
+                </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 mb-2">
                 <ContactOutcomeTable students={studentsIn30DayRenewalWindow} />
@@ -278,7 +278,15 @@ const Dashboard = () => {
             </div>
 
             {/* Role Specific Priority Lists */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+            <div className="grid grid-cols-1 gap-6 mt-8">
+                {(currentUser?.role === 'OWNER') && (
+                    <div className="mb-6">
+                        <ContactOutcomeTable students={studentsIn30DayRenewalWindow} />
+                    </div>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {(currentUser?.role === 'OWNER') && (
                     <>
                         <PriorityList title="🚨 Rinnovi Urgenti" students={urgentRenewals} type="RENEWAL" onActionClick={setViewingStudent} />
