@@ -231,7 +231,7 @@ const Dashboard = () => {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 mb-2">
-                        <ContactOutcomeTable students={studentsIn30DayRenewalWindow} />
+                        <ContactOutcomeTable students={visibleStudents} />
                         <PriorityList
                             title="⚠️ Difficoltà Segnalate"
                             students={studentsIn30DayRenewalWindow.filter(s => (s.difficultyTags && s.difficultyTags.length > 0))}
@@ -279,7 +279,7 @@ const Dashboard = () => {
                     <div className="grid grid-cols-1 gap-6 mt-8">
                         {(currentUser?.role === 'OWNER') && (
                             <div className="mb-6">
-                                <ContactOutcomeTable students={studentsIn30DayRenewalWindow} />
+                                <ContactOutcomeTable students={visibleStudents} />
                             </div>
                         )}
                     </div>
