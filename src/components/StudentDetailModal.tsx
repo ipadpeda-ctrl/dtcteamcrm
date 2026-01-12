@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { X, Phone, CheckCircle, Save, MessageCircle } from 'lucide-react';
+import { X, Phone, CheckCircle, Save, MessageCircle, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAppContext } from '../context/AppContext';
 import { DIFFICULTY_TAGS } from '../utils/tagUtils';
+import { calculateEndDate } from '../utils/businessLogic';
 import type { Student } from '../types';
 import clsx from 'clsx';
 
@@ -17,6 +18,7 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
 
     // Local state for editing
     const [formData, setFormData] = useState({
+        startDate: student.startDate ? student.startDate.substring(0, 10) : new Date().toISOString().substring(0, 10),
         isRenewed: student.isRenewed || false,
         renewalDate: student.renewalDate || '',
         callBooked: student.callBooked || false,
@@ -29,28 +31,28 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
     });
 
     const handleSave = () => {
-        // If renewed, the main endDate should be updated to the renewal date
-        const newEndDate = formData.isRenewed && formData.renewalDate ? formData.renewalDate : student.endDate;
-
-        // Calculate new status
+        // Calculate new status and end date
+        let newEndDate = student.endDate;
         let newStatus = student.status;
 
+        // If renewed, use the renewal date
+        if (formData.isRenewed && formData.renewalDate) {
+            newEndDate = formData.renewalDate;
+        } else {
+            // If NOT renewed (or renewal removed), recalculate expiration based on Start Date + Package
+            // This allows "resetting" a student or just changing their start date
+            newEndDate = calculateEndDate(formData.startDate, student.package);
+        }
+
         // Logic: If the new end date is in the future, the student should be ACTIVE
-        // This handles both Renewal cases and manual date extensions
         if (newEndDate) {
             const end = new Date(newEndDate);
             const now = new Date();
-            console.log('--- HANDLE SAVE DEBUG ---');
-            console.log('Original Status:', student.status);
-            console.log('Is Renewed:', formData.isRenewed);
-            console.log('New End Date String:', newEndDate);
-            console.log('Parsed End Date:', end);
-            console.log('Now:', now);
-            console.log('End > Now:', end > now);
 
             if (end > now) {
                 newStatus = 'ACTIVE';
-                console.log('Setting Status to ACTIVE');
+            } else {
+                newStatus = 'EXPIRED'; // Auto-expire if the calculated date is in the past
             }
         }
 
@@ -142,6 +144,22 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
                 <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
                     {activeTab === 'overview' && (
                         <div className="space-y-6">
+                            {/* Dates Section */}
+                            <div className="bg-gray-950/50 p-4 rounded-xl border border-gray-800 space-y-4">
+                                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                                    <Clock size={16} /> Date e Durata
+                                </h3>
+                                <div>
+                                    <label className="text-xs text-gray-500 mb-1 block">Data Inizio Percorso (Modificando questa data, la scadenza verrà ricalcolata se non rinnovato)</label>
+                                    <input
+                                        type="date"
+                                        className="w-full bg-gray-900 border border-gray-800 rounded-lg p-2 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        value={formData.startDate}
+                                        onChange={e => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                                    />
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Renewal Section */}
                                 <div className="bg-gray-950/50 p-4 rounded-xl border border-gray-800 space-y-4">
