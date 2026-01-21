@@ -199,7 +199,7 @@ const StudentDetailModal = ({ student, onClose }: StudentDetailModalProps) => {
                                                         onChange={e => setFormData(prev => ({ ...prev, coachId: e.target.value }))}
                                                     >
                                                         {users
-                                                            .filter(u => u.role === 'COACH' || u.role === 'OWNER')
+                                                            .filter(u => (u.role === 'COACH' || u.role === 'OWNER') && !u.name.toLowerCase().includes('simone'))
                                                             .map(coach => (
                                                                 <option key={coach.id} value={coach.id}>
                                                                     {coach.name}

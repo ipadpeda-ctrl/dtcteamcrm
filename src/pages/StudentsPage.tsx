@@ -16,11 +16,11 @@ const StudentsPage = () => {
         startDate: new Date().toISOString().split('T')[0], // Today YYYY-MM-DD
     });
 
-    const coaches = users.filter(u => u.role === 'COACH' || u.role === 'OWNER');
+    const coaches = users.filter(u => (u.role === 'COACH' || u.role === 'OWNER') && !u.name.toLowerCase().includes('simone'));
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.name || !formData.email || !formData.coachId) return;
+        if (!formData.name || !formData.coachId) return;
 
         const newStudent: Student = {
             id: uuidv4(),
@@ -93,7 +93,6 @@ const StudentsPage = () => {
                                 <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
                                 <input
                                     type="email"
-                                    required
                                     className="w-full bg-gray-950 border border-gray-800 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                     value={formData.email}
                                     onChange={e => setFormData({ ...formData, email: e.target.value })}
